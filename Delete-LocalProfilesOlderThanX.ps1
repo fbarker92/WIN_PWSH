@@ -46,6 +46,5 @@ if ($Challenge -like "YES") {
 }
 
 
-##}
-Get-CimInstance -Class Win32_userprofile | Where-Object { $_.LocalPath -match "$RemoveAccounts" } | Select-Object LocalPath
-Write-host $($RemoveAccounts) "'s" " Profile Was Deleted" -ForegroundColor Red
+##Get-CimInstance -Class Win32_userprofile | Where-Object { $_.LocalPath -match "$RemoveAccounts" } | Select-Object LocalPath
+##Write-host $($RemoveAccounts) "'s" " Profile Was Deleted" -ForegroundColor Red
