@@ -10,7 +10,7 @@ Get-ChildItem -force 'C:\Users'-ErrorAction SilentlyContinue | Where-Object { $_
 
 
 # Load profiles to be protected from deletion (E.g Local Admin profiles, Director profiles etc.)
-$ExcludedProfiles = "Default", "Public", "fergus"
+$ExcludedProfiles = "Default", "Public", "fbark", "ldadmin"
 
 # Set age of profile before it will be removed (e.g. setting to 30 will delete profiles older than 30 days)
 $ProfileAge = Read-Host "Set the maximum age of the profiles to remain on the disk (eg '30' days)"
@@ -20,22 +20,32 @@ $useraccounts = ""
 $LocalProfiles = Get-ChildItem -path C:\Users\ -Exclude $ExcludedProfiles | Where-Object lastwritetime -lt (Get-Date).AddDays($ProfileAge) | Select-Object name
 
 # Read out profile(s) that will be delted
+TODO LocalProfile names are being written into the array in the wrong format, needs to be user1, user2, user3 etc.
 foreach ($LocalProfile in $LocalProfiles) {
-    Write-host $LocalProfile.Name "'s", " profile will be deleted permanently!” -ForegroundColor Red 
+    Write-host $LocalProfile.Name "'s", " profile will be deleted permanently!” -ForegroundColor Yellow
     $useraccounts = $useraccounts + $LocalProfile
 }
 
-# Confirmation of local profile deletion
-$Challenge = Read-Host -prompt "Delete the above user profiles (YES/NO) "
+# Confirmation of local profile deletion, confirmation must be 'YES'
+$Challenge = Read-Host -prompt "Delete the above user profiles (yes/NO) "
 
-if ($Challenge -eq "YES") {
-    $sort = $useraccounts | ForEach-Object { $_.Name }
-    $RemoveAccounts = $sort -join "|"
-    Get-CimInstance -Class Win32_userprofile | Where-Object { $_.LocalPath -match "$RemoveAccounts" } | Select-Object LocalPath
-    Write-host $($useraccounts.Name) "'s" " Profile Was Deleted" -ForegroundColor Red
-}
-elseif ($Challenge -ne "YES") {
-    Write-Host "Exiting the script, NO PROFILES WERE DELETED!" -ForegroundColor Green
+if ($Challenge -like "YES") {
+    $RemoveAccounts = $useraccounts #| ForEach-Object { $_.Name }
+    #$RemoveAccounts = $sort #-join "|"
+    foreach($RemoveAccount in $RemoveAccounts){
+        Get-CimInstance -Class Win32_userprofile | Where-Object { $_.LocalPath -match "$RemoveAccount" } | Select-Object LocalPath
+        Write-host $($RemoveAccount) "'s" " Profile Was Deleted" -ForegroundColor Red
+    }
+}elseif ($Challenge -ne "YES") {
+    Write-Host "Exiting the script, the following profiles were NOT delted;" -ForegroundColor Green
+    foreach ($LocalProfile in $LocalProfiles) {
+        Write-host $LocalProfile.Name -ForegroundColor Green
+    }
     Start-Sleep -Seconds 5
     #exit
 }
+
+
+##}
+Get-CimInstance -Class Win32_userprofile | Where-Object { $_.LocalPath -match "$RemoveAccounts" } | Select-Object LocalPath
+Write-host $($RemoveAccounts) "'s" " Profile Was Deleted" -ForegroundColor Red
