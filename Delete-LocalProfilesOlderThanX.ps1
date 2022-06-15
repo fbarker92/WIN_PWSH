@@ -16,25 +16,24 @@ $ExcludedProfiles = "Default", "Public", "fbark", "ldadmin"
 $ProfileAge = Read-Host "Set the maximum age of the profiles to remain on the disk (eg '30' days)"
 $ProfileAge = - [int]$ProfileAge
 
-$useraccounts = ""
+#$useraccounts = ""
 $LocalProfiles = Get-ChildItem -path C:\Users\ -Exclude $ExcludedProfiles | Where-Object lastwritetime -lt (Get-Date).AddDays($ProfileAge) | Select-Object name
 
 # Read out profile(s) that will be delted
-TODO LocalProfile names are being written into the array in the wrong format, needs to be user1, user2, user3 etc.
 foreach ($LocalProfile in $LocalProfiles) {
     Write-host $LocalProfile.Name "'s", " profile will be deleted permanently!” -ForegroundColor Yellow
-    $useraccounts = $useraccounts + $LocalProfile
+    #$useraccounts = $useraccounts + $LocalProfile.Name
 }
 
 # Confirmation of local profile deletion, confirmation must be 'YES'
 $Challenge = Read-Host -prompt "Delete the above user profiles (yes/NO) "
 
 if ($Challenge -like "YES") {
-    $RemoveAccounts = $useraccounts #| ForEach-Object { $_.Name }
+    #$RemoveAccounts = $useraccounts #| ForEach-Object { $_.Name }
     #$RemoveAccounts = $sort #-join "|"
-    foreach($RemoveAccount in $RemoveAccounts){
-        Get-CimInstance -Class Win32_userprofile | Where-Object { $_.LocalPath -match "$RemoveAccount" } | Select-Object LocalPath
-        Write-host $($RemoveAccount) "'s" " Profile Was Deleted" -ForegroundColor Red
+    foreach($LocalProfile in $LocalProfiles){
+        Get-CimInstance -Class Win32_userprofile | Where-Object { $_.LocalPath -match "$LocalProfile" } | Select-Object LocalPath
+        Write-host $($LocalProfile.Name) "'s" " Profile Was Deleted" -ForegroundColor Red
     }
 }elseif ($Challenge -ne "YES") {
     Write-Host "Exiting the script, the following profiles were NOT delted;" -ForegroundColor Green
