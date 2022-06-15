@@ -29,8 +29,6 @@ foreach ($LocalProfile in $LocalProfiles) {
 $Challenge = Read-Host -prompt "Delete the above user profiles (yes/NO) "
 
 if ($Challenge -like "YES") {
-    #$RemoveAccounts = $useraccounts #| ForEach-Object { $_.Name }
-    #$RemoveAccounts = $sort #-join "|"
     foreach($LocalProfile in $LocalProfiles){
         Get-CimInstance -Class Win32_userprofile | Where-Object { $_.LocalPath -match "$LocalProfile" } | Select-Object LocalPath
         Write-host $($LocalProfile.Name) "'s" " Profile Was Deleted" -ForegroundColor Red
