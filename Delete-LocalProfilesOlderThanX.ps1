@@ -6,7 +6,7 @@ Get-ChildItem -force 'C:\Users'-ErrorAction SilentlyContinue | Where-Object { $_
     $_.fullname, '{0:N2} GB' -f ($len / 1Gb)
     $sum = $sum + $len
 }
-“Total size of profiles”, '{0:N2} GB' -f ($sum / 1Gb)
+"Total size of profiles", '{0:N2} GB' -f ($sum / 1Gb)
 
 
 # Load profiles to be protected from deletion (E.g Local Admin profiles, Director profiles etc.)
@@ -21,7 +21,7 @@ $LocalProfiles = Get-ChildItem -path C:\Users\ -Exclude $ExcludedProfiles | Wher
 
 # Read out profile(s) that will be delted
 foreach ($LocalProfile in $LocalProfiles) {
-    Write-host $LocalProfile.Name "'s", " profile will be deleted permanently!” -ForegroundColor Yellow
+    Write-host $LocalProfile.Name "'s", " profile will be deleted permanently!" -ForegroundColor Yellow
     #$useraccounts = $useraccounts + $LocalProfile.Name
 }
 
@@ -30,18 +30,14 @@ $Challenge = Read-Host -prompt "Delete the above user profiles (yes/NO) "
 
 if ($Challenge -like "YES") {
     foreach($LocalProfile in $LocalProfiles){
-        Get-CimInstance -Class Win32_userprofile | Where-Object { $_.LocalPath -match "$LocalProfile" } | Select-Object LocalPath
-        Write-host $($LocalProfile.Name) "'s" " Profile Was Deleted" -ForegroundColor Red
+        Get-CimInstance -Class Win32_UserProfile | Where-Object {$_.LocalPath -match $LocalProfile.Name} | Remove-CimInstance
+        Write-host $($LocalProfile.Name) "'s  profile was deleted"
     }
 }elseif ($Challenge -ne "YES") {
-    Write-Host "Exiting the script, the following profiles were NOT delted;" -ForegroundColor Green
+    Write-Host "Exiting the script, the following profiles were NOT deleted" -ForegroundColor Green
     foreach ($LocalProfile in $LocalProfiles) {
         Write-host $LocalProfile.Name -ForegroundColor Green
     }
     Start-Sleep -Seconds 5
     #exit
 }
-
-
-##Get-CimInstance -Class Win32_userprofile | Where-Object { $_.LocalPath -match "$RemoveAccounts" } | Select-Object LocalPath
-##Write-host $($RemoveAccounts) "'s" " Profile Was Deleted" -ForegroundColor Red
