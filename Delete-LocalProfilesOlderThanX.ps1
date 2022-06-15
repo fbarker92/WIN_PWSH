@@ -20,8 +20,9 @@ $ProfileAge = - [int]$ProfileAge
 $LocalProfiles = Get-ChildItem -path C:\Users\ -Exclude $ExcludedProfiles | Where-Object lastwritetime -lt (Get-Date).AddDays($ProfileAge) | Select-Object name
 
 # Read out profile(s) that will be delted
+Write-Host "The following profile will be deleted;" -ForegroundColor Yellow
 foreach ($LocalProfile in $LocalProfiles) {
-    Write-host $LocalProfile.Name "'s", " profile will be deleted permanently!" -ForegroundColor Yellow
+    Write-host $LocalProfile.Name -ForegroundColor Yellow
     #$useraccounts = $useraccounts + $LocalProfile.Name
 }
 
@@ -30,8 +31,9 @@ $Challenge = Read-Host -prompt "Delete the above user profiles (yes/NO) "
 
 if ($Challenge -like "YES") {
     foreach($LocalProfile in $LocalProfiles){
+        Write-Host "The following Profiles were deleted;" -ForegroundColor Red
         Get-CimInstance -Class Win32_UserProfile | Where-Object {$_.LocalPath -match $LocalProfile.Name} | Remove-CimInstance
-        Write-host $($LocalProfile.Name) "'s  profile was deleted"
+        Write-host $($LocalProfile.Name) -ForegroundColor Red
     }
 }elseif ($Challenge -ne "YES") {
     Write-Host "Exiting the script, the following profiles were NOT deleted" -ForegroundColor Green
