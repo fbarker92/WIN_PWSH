@@ -20,11 +20,18 @@ $ProfileAge = - [int]$ProfileAge
 $LocalProfiles = Get-ChildItem -path C:\Users\ -Exclude $ExcludedProfiles | Where-Object lastwritetime -lt (Get-Date).AddDays($ProfileAge) | Select-Object name
 
 # Read out profile(s) that will be delted
-Write-Host "The following profile will be deleted;" -ForegroundColor Yellow
-foreach ($LocalProfile in $LocalProfiles) {
-    Write-host $LocalProfile.Name -ForegroundColor Yellow
-    #$useraccounts = $useraccounts + $LocalProfile.Name
+if ($LocalProfiles.count -eq 0) {
+    Write-Host "There are no profiles older than $ProfileAge Days"
+    }
+    else{
+        Write-Host "The following profile will be deleted;" -ForegroundColor Yellow
+    foreach ($LocalProfile in $LocalProfiles) {
+        Write-host $LocalProfile.Name -ForegroundColor Yellow
+        #$useraccounts = $useraccounts + $LocalProfile.Name
+    }
 }
+
+
 
 # Confirmation of local profile deletion, confirmation must be 'YES'
 $Challenge = Read-Host -prompt "Delete the above user profiles (yes/NO) "
