@@ -1,3 +1,4 @@
+set-executionpolicy remotesigned
 
 # Check current profiles and their respective disk usage
 Get-ChildItem -force 'C:\Users'-ErrorAction SilentlyContinue | Where-Object { $_ -is [io.directoryinfo] } | ForEach-Object {
@@ -22,6 +23,10 @@ $LocalProfiles = Get-ChildItem -path C:\Users\ -Exclude $ExcludedProfiles | Wher
 # Read out profile(s) that will be delted
 if ($LocalProfiles.count -eq 0) {
     Write-Host "There are no profiles older than $ProfileAge Days"
+    Start-Sleep -Seconds 1
+    Write-Host "Exiting..."
+    Start-Sleep -Seconds 2
+    exit
     }
     else{
         Write-Host "The following profile will be deleted;" -ForegroundColor Yellow
@@ -40,6 +45,7 @@ if ($Challenge -like "YES") {
     foreach($LocalProfile in $LocalProfiles){
         Write-Host "The following Profiles were deleted;" -ForegroundColor Red
         Get-CimInstance -Class Win32_UserProfile | Where-Object {$_.LocalPath -match $LocalProfile.Name} | Remove-CimInstance
+       $DeletedProfiles = $DeletedProfiles + $LocalProfiles.Name
         Write-host $($LocalProfile.Name) -ForegroundColor Red
     }
 }elseif ($Challenge -ne "YES") {
